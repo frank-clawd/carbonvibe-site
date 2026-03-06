@@ -351,32 +351,91 @@
       margin-bottom: 2rem;
       line-height: 1.6;
     }
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: left;
+      margin-bottom: 1.5rem;
+    }
+    .contact-form label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: var(--accent);
+    }
+    .contact-form input::placeholder,
+    .contact-form textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .contact-form textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
     .contact-btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
       padding: 0.85rem 2.5rem;
       background: var(--accent);
-      color: var(--bg-dark);
+      color: #fff;
       font-weight: 700;
       font-size: 1rem;
-      text-decoration: none;
+      border: none;
       border-radius: 8px;
+      cursor: pointer;
       transition: all 0.2s;
-      margin-bottom: 1.5rem;
+      width: 100%;
     }
     .contact-btn:hover {
       background: #5a8fd4;
       transform: translateY(-1px);
     }
-    .contact-email {
-      display: block;
-      color: var(--text-muted);
-      font-size: 0.85rem;
+    .contact-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
-    .contact-email a {
-      color: var(--accent);
-      text-decoration: none;
+    .contact-success {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+    }
+    .contact-success .checkmark {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .contact-success h3 {
+      font-size: 1.3rem;
+      margin-bottom: 0.5rem;
+    }
+    .contact-success p {
+      color: var(--text-secondary);
+    }
+    .contact-error {
+      display: none;
+      color: #e55;
+      font-size: 0.85rem;
+      text-align: center;
+      margin-top: 0.5rem;
     }
 
     /* Footer */
@@ -551,11 +610,28 @@
   <section id="contact">
     <div class="contact-box">
       <h2>Let's Build Something</h2>
-      <p>Ready to stop wasting time on things a system should handle? Let's talk about what AI and automation can do for your business.</p>
-      <a href="mailto:justin@carbonvibe.com" class="contact-btn">
-        Get in Touch
-      </a>
-      <span class="contact-email">or email directly: <a href="mailto:justin@carbonvibe.com">justin@carbonvibe.com</a></span>
+      <p>Ready to stop wasting time on things a system should handle? Tell me about your business and I'll get back to you within 24 hours.</p>
+      <form class="contact-form" id="contactForm" onsubmit="handleSubmit(event)">
+        <div>
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div>
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@company.com" required>
+        </div>
+        <div>
+          <label for="message">What can I help with?</label>
+          <textarea id="message" name="message" placeholder="Tell me a bit about your business and what you're looking for..." required></textarea>
+        </div>
+        <button type="submit" class="contact-btn" id="submitBtn">Send Message</button>
+        <div class="contact-error" id="contactError"></div>
+      </form>
+      <div class="contact-success" id="contactSuccess">
+        <div class="checkmark">✓</div>
+        <h3>Message sent!</h3>
+        <p>I'll get back to you within 24 hours.</p>
+      </div>
     </div>
   </section>
 
@@ -571,6 +647,44 @@
         document.querySelector('.nav-links').classList.remove('open');
       });
     });
+
+    // Contact form handler
+    const WEBHOOK_URL = ''; // TODO: set n8n webhook URL
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const errEl = document.getElementById('contactError');
+      const form = document.getElementById('contactForm');
+      const success = document.getElementById('contactSuccess');
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: document.getElementById('name').value,
+            email: document.getElementById('email').value,
+            message: document.getElementById('message').value,
+            submitted_at: new Date().toISOString()
+          })
+        });
+
+        if (!res.ok) throw new Error('Failed to send');
+
+        form.style.display = 'none';
+        success.style.display = 'block';
+      } catch (err) {
+        errEl.textContent = 'Something went wrong. Try emailing justin@carbonvibe.com directly.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Send Message';
+      }
+    }
 
     // Subtle scroll-triggered fade-in
     const observer = new IntersectionObserver((entries) => {
