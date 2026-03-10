@@ -72,7 +72,8 @@
       height: 32px;
       width: 32px;
     }
-    .nav-logo span { color: var(--accent); }
+    .nav-logo .wordmark { color: var(--text-primary); }
+    .nav-logo .wordmark span { color: var(--accent); }
     .nav-links { display: flex; gap: 2rem; align-items: center; }
     .nav-links a {
       color: var(--text-secondary);
@@ -491,7 +492,7 @@
 
   <!-- Nav -->
   <nav>
-    <a href="#" class="nav-logo"><img src="/logo-64.png" alt="CarbonVibe logo" width="32" height="32">Carbon<span>Vibe</span></a>
+    <a href="#" class="nav-logo"><img src="/logo-64.png" alt="CarbonVibe logo" width="32" height="32"><span class="wordmark">Carbon<span>Vibe</span></span></a>
     <button class="mobile-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
     <div class="nav-links">
       <a href="#services">Services</a>
